@@ -1,20 +1,22 @@
 # 🐲 Kraków Smog Monitor
 
-Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa w czasie rzeczywistym. Projekt łączy pobieranie danych z zewnętrznego API, składowanie ich w bazie PostgreSQL oraz wizualizację na mapie.
+Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa w czasie rzeczywistym. Projekt łączy pobieranie danych z zewnętrznego API, składowanie ich w bazie PostgreSQL oraz wizualizację na interaktywnej mapie.
 
 ## 📸 Podgląd
 
-<img width="2738" height="1357" alt="image" src="https://github.com/user-attachments/assets/bcc77927-8fe2-4fb2-b2c4-a837a118dc86" />
-<img width="1338" height="1096" alt="image" src="https://github.com/user-attachments/assets/fed90dc8-8d46-4ad7-a281-deb59706f428" />
-
-
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/bcc77927-8fe2-4fb2-b2c4-a837a118dc86" alt="Dashboard View" width="100%">
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/fed90dc8-8d46-4ad7-a281-deb59706f428" alt="Map Detail" width="48%">
+</p>
 
 ## 🚀 Funkcjonalności
 
 * **Real-time Data:** Automatyczne pobieranie danych o jakości powietrza (AQI) dla każdej z 18 dzielnic Krakowa (API WAQI).
 * **Data Engineering:** Proces ETL (Extract, Transform, Load) zapisujący dane historyczne do bazy PostgreSQL.
-* **Geospatial Visualization:** Interaktywna mapa Krakowa z podziałem na oficjalne granice dzielnic (GeoJSON) i kolorystycznym oznaczeniem stanu powietrza.
+* **Geospatial Visualization:** Interaktywna mapa Krakowa z precyzyjnym podziałem na oficjalne granice dzielnic (GeoJSON) i kolorystycznym oznaczeniem stanu powietrza.
+* **Interactive Dashboard:** Możliwość wyboru dzielnicy z tabeli, co automatycznie podświetla ją na mapie (Fuzzy Matching nazw).
 * **Dockerized Database:** Baza danych uruchamiana w bezpiecznym kontenerze Docker.
 
 ## 🛠️ Technologie
@@ -29,8 +31,9 @@ Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa
 ## ⚙️ Instalacja i Uruchomienie
 
 1.  **Sklonuj repozytorium:**
+    *(Podmień `TWOJA_NAZWA` na swój nick z GitHuba)*
     ```bash
-    git clone [https://github.com/TWOJA_NAZWA_UZYTKOWNIKA/smog-krakow.git](https://github.com/TWOJA_NAZWA_UZYTKOWNIKA/smog-krakow.git)
+    git clone [https://github.com/TWOJA_NAZWA/smog-krakow.git](https://github.com/TWOJA_NAZWA/smog-krakow.git)
     cd smog-krakow
     ```
 
@@ -47,7 +50,7 @@ Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa
     ```
 
 4.  **Uruchom bazę danych (Docker):**
-    *(Upewnij się, że masz plik docker-compose.yml lub uruchomioną bazę Postgres)*
+    *(Upewnij się, że masz uruchomioną bazę Postgres w Dockerze zgodnie z konfiguracją)*
 
 5. **Uruchom aplikację:**
     * **Backend (zbieranie danych):**
@@ -65,9 +68,9 @@ Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa
 
 ## 📂 Struktura Projektu
 
-* `main.py` - Skrypt backendowy (ETL), pobiera dane co godzinę.
-* `dashboard.py` - Aplikacja Streamlit wizualizująca dane.
-* `krakow_dzielnice_master.geojson` - Plik z granicami dzielnic.
+* `main.py` - Skrypt backendowy (ETL), pobiera dane co godzinę i zapisuje do bazy.
+* `dashboard.py` - Aplikacja Streamlit wizualizująca dane na mapie.
+* `*.geojson` - Zestaw 18 plików z precyzyjnymi granicami dzielnic Krakowa.
 * `requirements.txt` - Lista wymaganych bibliotek.
 
 ---
