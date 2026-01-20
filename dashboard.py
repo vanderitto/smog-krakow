@@ -61,7 +61,6 @@ df = get_data()
 if st.sidebar.button("🔄 Odśwież dane"):
     st.rerun()
 
-# Sprawdzamy czy są dane
 if df.empty:
     st.error("❌ Baza danych jest pusta! Uruchom najpierw main.py.")
     st.stop()
@@ -99,10 +98,8 @@ with col2:
     pliki_na_dysku = glob.glob("*.geojson")
     
     for sciezka_pliku in pliki_na_dysku:
-        # Wyciągamy nazwę np. "dzielnica_I" z pliku "dzielnica_I.geojson"
         klucz_pliku = os.path.basename(sciezka_pliku).replace(".geojson", "")
         
-        # Sprawdzamy czy mamy taką nazwę w naszym słowniku
         if klucz_pliku in MAPOWANIE:
             nazwa_w_bazie = MAPOWANIE[klucz_pliku]
             
@@ -113,9 +110,9 @@ with col2:
             # Kolory
             fill_color = 'gray'
             if aqi:
-                if aqi <= 50: fill_color = '#00CC00' # Zielony
-                elif aqi <= 100: fill_color = '#FF9900' # Pomarańczowy
-                else: fill_color = '#CC0000' # Czerwony
+                if aqi <= 50: fill_color = '#00CC00'
+                elif aqi <= 100: fill_color = '#FF9900'
+                else: fill_color = '#CC0000'
             
             # Logika podświetlania (jeśli kliknięto w tabeli)
             czy_aktywna = (nazwa_w_bazie == wybrana_dzielnica)
