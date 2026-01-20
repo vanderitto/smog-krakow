@@ -4,23 +4,16 @@ import folium
 from streamlit_folium import st_folium
 from sqlalchemy import create_engine
 import os
+import json
 import glob
-import json 
 from dotenv import load_dotenv
 
-st.set_page_config(page_title="Smog Kraków (Auto)", page_icon="🗺️", layout="wide")
+st.set_page_config(page_title="Smog Kraków (Final)", page_icon="🐲", layout="wide")
 load_dotenv()
 
-st.title("🗺️ Kraków Smog: Mapa Dzielnic")
+st.title("🐲 Kraków Smog: Mapa Dzielnic")
 
-PLIKI_GEOJSON = glob.glob("*.geojson")
-
-if not PLIKI_GEOJSON:
-    st.error("❌ BŁĄD: Nie widzę plików .geojson w folderze!")
-    st.stop()
-else:
-    st.success(f"✅ Załadowano {len(PLIKI_GEOJSON)} map dzielnic.")
-
+# --- 1. KONFIGURACJA ---
 DB_PASS = os.getenv("DB_PASSWORD")
 if not DB_PASS:
     st.error("Brak hasła w pliku .env")
@@ -29,90 +22,145 @@ if not DB_PASS:
 db_url = f'postgresql://myuser:{DB_PASS}@localhost:5432/weather_db'
 engine = create_engine(db_url)
 
+# --- 2. MAPOWANIE (Tego brakowało!) ---
+# Klucz: Nazwa pliku (bez .geojson) widoczna u Ciebie w folderze
+# Wartość: Dokładna nazwa dzielnicy w Twojej bazie danych
+MAPOWANIE = {
+    "dzielnica_I": "Dzielnica I Stare Miasto",
+    "dzielnica_II": "Dzielnica II Grzegórzki",
+    "dzielnica_III": "Dzielnica III Prądnik Czerwony",
+    "dzielnica_IV": "Dzielnica IV Prądnik Biały",
+    "dzielnica_V": "Dzielnica V Krowodrza",
+    "dzielnica_VI": "Dzielnica VI Bronowice",
+    "dzielnica_VII": "Dzielnica VII Zwierzyniec",
+    "dzielnica_VIII": "Dzielnica VIII Dębniki",
+    "dzielnica_IX": "Dzielnica IX Łagiewniki-Borek Fałęcki",
+    "dzielnica_X": "Dzielnica X Swoszowice",
+    "dzielnica_XI": "Dzielnica XI Podgórze Duchackie",
+    "dzielnica_XII": "Dzielnica XII Bieżanów-Prokocim",
+    "dzielnica_XIII": "Dzielnica XIII Podgórze",
+    "dzielnica_XIV": "Dzielnica XIV Czyżyny",
+    "dzielnica_XV": "Dzielnica XV Mistrzejowice",
+    "dzielnica_XVI": "Dzielnica XVI Bieńczyce",
+    "dzielnica_XVII": "Dzielnica XVII Wzgórza Krzesławickie",
+    "dzielnica_XVIII": "Dzielnica XVIII Nowa Huta"
+}
+
+# --- 3. POBIERANIE DANYCH ---
 def get_data():
     try:
-        query = """
-            SELECT DISTINCT ON (miasto) * FROM smog_polska 
-            ORDER BY miasto, czas DESC;
-        """
+        query = "SELECT DISTINCT ON (miasto) * FROM smog_polska ORDER BY miasto, czas DESC;"
         df = pd.read_sql(query, engine)
-        
-        df = df[df['miasto'].str.startswith('Dzielnica')]
-        
-        def wybierz_kolor(aqi):
-            if aqi <= 50: return 'green'
-            elif aqi <= 100: return 'orange'
-            else: return 'red'
-            
-        if not df.empty:
-            df['kolor'] = df['aqi'].apply(wybierz_kolor)
-            
         return df
     except Exception as e:
-        st.error(f"Błąd bazy: {e}")
         return pd.DataFrame()
-
-
-if st.sidebar.button("🔄 Odśwież dane"):
-    st.rerun()
 
 df = get_data()
 
-if not df.empty:
-    col1, col2 = st.columns([1, 2])
+# --- 4. INTERFEJS ---
+if st.sidebar.button("🔄 Odśwież dane"):
+    st.rerun()
+
+# Sprawdzamy czy są dane
+if df.empty:
+    st.error("❌ Baza danych jest pusta! Uruchom najpierw main.py.")
+    st.stop()
+
+# --- 5. INTERAKTYWNA TABELA ---
+col1, col2 = st.columns([1, 2])
+wybrana_dzielnica = None
+
+with col1:
+    st.subheader("📊 Wybierz dzielnicę")
+    tabela_view = df[['miasto', 'aqi', 'stan']].sort_values(by='aqi', ascending=False)
+    tabela_view.columns = ['Dzielnica', 'AQI', 'Stan']
     
-    with col1:
-        st.subheader("Aktualne Pomiary")
-        tabela = df[['miasto', 'aqi', 'stan']].sort_values(by='aqi', ascending=False)
-        st.dataframe(tabela, hide_index=True, height=500)
+    event = st.dataframe(
+        tabela_view,
+        hide_index=True,
+        use_container_width=True,
+        height=500,
+        on_select="rerun",
+        selection_mode="single-row"
+    )
+    
+    if len(event.selection.rows) > 0:
+        idx = event.selection.rows[0]
+        wybrana_dzielnica = tabela_view.iloc[idx]['Dzielnica']
 
-    with col2:
-        m = folium.Map(location=[50.0647, 19.9450], zoom_start=11)
+# --- 6. MAPA ---
+with col2:
+    # Słowniki danych
+    aqi_dict = df.set_index('miasto')['aqi'].to_dict()
+    stan_dict = df.set_index('miasto')['stan'].to_dict()
 
-        for plik in PLIKI_GEOJSON:
+    m = folium.Map(location=[50.0647, 19.9450], zoom_start=11, tiles="CartoDB positron")
+    
+    pliki_na_dysku = glob.glob("*.geojson")
+    
+    for sciezka_pliku in pliki_na_dysku:
+        # Wyciągamy nazwę np. "dzielnica_I" z pliku "dzielnica_I.geojson"
+        klucz_pliku = os.path.basename(sciezka_pliku).replace(".geojson", "")
+        
+        # Sprawdzamy czy mamy taką nazwę w naszym słowniku
+        if klucz_pliku in MAPOWANIE:
+            nazwa_w_bazie = MAPOWANIE[klucz_pliku]
+            
+            # Pobieramy dane
+            aqi = aqi_dict.get(nazwa_w_bazie)
+            stan = stan_dict.get(nazwa_w_bazie, "Brak danych")
+            
+            # Kolory
+            fill_color = 'gray'
+            if aqi:
+                if aqi <= 50: fill_color = '#00CC00' # Zielony
+                elif aqi <= 100: fill_color = '#FF9900' # Pomarańczowy
+                else: fill_color = '#CC0000' # Czerwony
+            
+            # Logika podświetlania (jeśli kliknięto w tabeli)
+            czy_aktywna = (nazwa_w_bazie == wybrana_dzielnica)
+            opacity = 0.8 if czy_aktywna else 0.5
+            line_weight = 4 if czy_aktywna else 1
+            line_color = 'black' if czy_aktywna else 'white'
+
             try:
-                with open(plik, 'r', encoding='utf-8') as f:
+                with open(sciezka_pliku, 'r', encoding='utf-8') as f:
                     geo_data = json.load(f)
                 
-                nazwa_ladna = os.path.basename(plik).replace(".geojson", "").replace("_", " ").title()
-
-                dane_naprawione = {
+                # Budujemy Feature
+                feature = {
                     "type": "Feature",
-                    "geometry": geo_data,  
-                    "properties": {"name": nazwa_ladna} 
+                    "geometry": geo_data,
+                    "properties": {
+                        "name": nazwa_w_bazie,
+                        "aqi": str(aqi) if aqi else "Brak",
+                        "stan": stan
+                    }
                 }
-
+                
                 folium.GeoJson(
-                    dane_naprawione,
-                    name=nazwa_ladna,
-                    style_function=lambda x: {
-                        'fillColor': 'blue',
-                        'fillOpacity': 0.05,
-                        'color': 'gray',
-                        'weight': 1,
-                        'dashArray': '5, 5'
+                    feature,
+                    name=nazwa_w_bazie,
+                    style_function=lambda x, fc=fill_color, op=opacity, lw=line_weight, lc=line_color: {
+                        'fillColor': fc,
+                        'fillOpacity': op,
+                        'color': lc,
+                        'weight': lw,
                     },
-                    tooltip=folium.GeoJsonTooltip(fields=['name'], aliases=['Obszar:'], labels=False) 
+                    # To odpowiada za podświetlenie po najechaniu myszką (hover)
+                    highlight_function=lambda x: {
+                        'weight': 3, 
+                        'color': '#666',
+                        'fillOpacity': 0.8
+                    },
+                    tooltip=folium.GeoJsonTooltip(
+                        fields=['name', 'aqi', 'stan'],
+                        aliases=['Dzielnica:', 'AQI:', 'Stan:'],
+                        style="font-size: 14px"
+                    )
                 ).add_to(m)
+                
             except Exception as e:
-                st.warning(f"Nie udało się wczytać mapy: {plik} ({e})")
+                st.error(f"Błąd pliku {sciezka_pliku}: {e}")
 
-        for index, row in df.iterrows():
-            html = f"<b>{row['miasto']}</b><br>AQI: {row['aqi']}<br>{row['stan']}"
-            
-            folium.CircleMarker(
-                location=[row['lat'], row['lon']],
-                radius=12,
-                color='black',
-                weight=1,
-                fill=True,
-                fill_color=row['kolor'],
-                fill_opacity=0.8,
-                popup=folium.Popup(html, max_width=200),
-                tooltip=f"{row['miasto']}: {row['aqi']}"
-            ).add_to(m)
-
-        st_folium(m, width=800, height=600, returned_objects=[])
-
-else:
-    st.info("Baza jest połączona, ale main.py jeszcze nie zapisał danych dla dzielnic.")
+    st_folium(m, width=900, height=700, returned_objects=[])
