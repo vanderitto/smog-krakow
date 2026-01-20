@@ -4,7 +4,8 @@ Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa
 
 ## 📸 Podgląd
 
-*(Tutaj wkleisz zrzut ekranu swojej mapy po wrzuceniu na GitHub - edytuj ten plik później!)*
+![Uploading image.png…]()
+
 
 ## 🚀 Funkcjonalności
 
