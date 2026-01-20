@@ -4,7 +4,8 @@ Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa
 
 ## 📸 Podgląd
 
-*(Tutaj wkleisz zrzut ekranu swojej mapy po wrzuceniu na GitHub - edytuj ten plik później!)*
+
+
 
 ## 🚀 Funkcjonalności
 
@@ -45,9 +46,19 @@ Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa
 4.  **Uruchom bazę danych (Docker):**
     *(Upewnij się, że masz plik docker-compose.yml lub uruchomioną bazę Postgres)*
 
-5.  **Uruchom aplikację:**
-    * Backend (zbieranie danych): `python main.py`
-    * Frontend (dashboard): `streamlit run dashboard.py`
+5. **Uruchom aplikację:**
+    * **Backend (zbieranie danych):**
+      ```bash
+      python main.py
+      ```
+      > 💡 **Wskazówka:** Skrypt działa w pętli nieskończonej (zbiera dane co godzinę). Aby bezpiecznie przerwać jego działanie, wciśnij w terminalu skrót **`Ctrl + C`**.
+
+    * **Frontend (dashboard):**
+      Uruchom w nowym oknie terminala:
+      ```bash
+      streamlit run dashboard.py
+      ```
+      *(Dashboard otworzy się automatycznie w Twojej przeglądarce).*
 
 ## 📂 Struktura Projektu
 
