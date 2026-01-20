@@ -1,8 +1,8 @@
 # 🐲 Kraków Smog Monitor
 
-Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa w czasie rzeczywistym. Projekt łączy pobieranie danych z zewnętrznego API, składowanie ich w bazie PostgreSQL oraz wizualizację na interaktywnej mapie.
+An interactive application monitoring air quality across 18 districts of Kraków in real-time. The project combines data fetching from an external API, storage in a PostgreSQL database, and visualization on an interactive map.
 
-## 📸 Podgląd
+## 📸 Preview
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/bcc77927-8fe2-4fb2-b2c4-a837a118dc86" alt="Dashboard View" width="100%">
@@ -11,67 +11,67 @@ Interaktywna aplikacja monitorująca jakość powietrza w 18 dzielnicach Krakowa
   <img src="https://github.com/user-attachments/assets/fed90dc8-8d46-4ad7-a281-deb59706f428" alt="Map Detail" width="48%">
 </p>
 
-## 🚀 Funkcjonalności
+## 🚀 Features
 
-* **Real-time Data:** Automatyczne pobieranie danych o jakości powietrza (AQI) dla każdej z 18 dzielnic Krakowa (API WAQI).
-* **Data Engineering:** Proces ETL (Extract, Transform, Load) zapisujący dane historyczne do bazy PostgreSQL.
-* **Geospatial Visualization:** Interaktywna mapa Krakowa z precyzyjnym podziałem na oficjalne granice dzielnic (GeoJSON) i kolorystycznym oznaczeniem stanu powietrza.
-* **Interactive Dashboard:** Możliwość wyboru dzielnicy z tabeli, co automatycznie podświetla ją na mapie (Fuzzy Matching nazw).
-* **Dockerized Database:** Baza danych uruchamiana w bezpiecznym kontenerze Docker.
+* **Real-time Data:** Automatic fetching of air quality data (AQI) for each of Kraków's 18 districts (WAQI API).
+* **Data Engineering:** ETL process (Extract, Transform, Load) saving historical data to a PostgreSQL database.
+* **Geospatial Visualization:** Interactive map of Kraków with precise division into official district boundaries (GeoJSON) and color-coded air status.
+* **Interactive Dashboard:** Ability to select a district from the table, automatically highlighting it on the map (Fuzzy Matching of names).
+* **Dockerized Database:** Database running in a secure Docker container.
 
-## 🛠️ Technologie
+## 🛠️ Technologies
 
 * **Python 3.11+**
 * **Streamlit** (Frontend & Dashboard)
-* **Folium & GeoJSON** (Mapy)
-* **PostgreSQL** (Baza danych)
-* **Docker** (Konteneryzacja)
-* **SQLAlchemy & Pandas** (Obsługa danych)
+* **Folium & GeoJSON** (Maps)
+* **PostgreSQL** (Database)
+* **Docker** (Containerization)
+* **SQLAlchemy & Pandas** (Data Handling)
 
-## ⚙️ Instalacja i Uruchomienie
+## ⚙️ Installation & Setup
 
-1.  **Sklonuj repozytorium:**
-    *(Podmień `TWOJA_NAZWA` na swój nick z GitHuba)*
+1.  **Clone the repository:**
+    *(Replace `YOUR_USERNAME` with your GitHub username)*
     ```bash
-    git clone [https://github.com/TWOJA_NAZWA/smog-krakow.git](https://github.com/TWOJA_NAZWA/smog-krakow.git)
+    git clone [https://github.com/YOUR_USERNAME/smog-krakow.git](https://github.com/YOUR_USERNAME/smog-krakow.git)
     cd smog-krakow
     ```
 
-2.  **Stwórz plik `.env`:**
-    Utwórz plik `.env` w głównym katalogu i dodaj swoje klucze:
+2.  **Create a `.env` file:**
+    Create a `.env` file in the main directory and add your keys:
     ```text
-    WAQI_TOKEN=twoj_token_z_aqicn_org
-    DB_PASSWORD=twoje_haslo_do_bazy
+    WAQI_TOKEN=your_token_from_aqicn_org
+    DB_PASSWORD=your_database_password
     ```
 
-3.  **Zainstaluj biblioteki:**
+3.  **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Uruchom bazę danych (Docker):**
-    *(Upewnij się, że masz uruchomioną bazę Postgres w Dockerze zgodnie z konfiguracją)*
+4.  **Start the database (Docker):**
+    *(Ensure you have the Postgres database running in Docker according to the configuration)*
 
-5. **Uruchom aplikację:**
-    * **Backend (zbieranie danych):**
-      ```bash
-      python main.py
-      ```
-      > 💡 **Wskazówka:** Skrypt działa w pętli nieskończonej (zbiera dane co godzinę). Aby bezpiecznie przerwać jego działanie, wciśnij w terminalu skrót **`Ctrl + C`**.
+5.  **Run the application:**
+    * **Backend (data collection):**
+        ```bash
+        python main.py
+        ```
+        > 💡 **Tip:** The script runs in an infinite loop (collects data every hour). To safely stop it, press **`Ctrl + C`** in the terminal.
 
     * **Frontend (dashboard):**
-      Uruchom w nowym oknie terminala:
-      ```bash
-      streamlit run dashboard.py
-      ```
-      *(Dashboard otworzy się automatycznie w Twojej przeglądarce).*
+        Run in a new terminal window:
+        ```bash
+        streamlit run dashboard.py
+        ```
+        *(The dashboard will open automatically in your browser).*
 
-## 📂 Struktura Projektu
+## 📂 Project Structure
 
-* `main.py` - Skrypt backendowy (ETL), pobiera dane co godzinę i zapisuje do bazy.
-* `dashboard.py` - Aplikacja Streamlit wizualizująca dane na mapie.
-* `*.geojson` - Zestaw 18 plików z precyzyjnymi granicami dzielnic Krakowa.
-* `requirements.txt` - Lista wymaganych bibliotek.
+* `main.py` - Backend script (ETL), fetches data every hour and saves it to the database.
+* `dashboard.py` - Streamlit application visualizing data on the map.
+* `*.geojson` - Set of 18 files with precise boundaries of Kraków districts.
+* `requirements.txt` - List of required libraries.
 
 ---
-*Projekt stworzony w celach edukacyjnych.*
+*Project created for educational purposes.*
